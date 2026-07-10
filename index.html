@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<title>Del Monte Ferma</title>
+<link rel="icon" href="/logo.png" />
+<style>
+  :root{
+    --green:#12b886; --green-d:#0ca678;
+    --orange:#f9a825; --orange-d:#f57f17;
+    --red:#e53935; --red-d:#c62828;
+    --brown:#8d5524; --wood:#a9763f;
+    --ink:#2b2b2b; --muted:#8a8a8a;
+    --card:#ffffff; --line:#eee;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  body{font-family:'Segoe UI',system-ui,Arial,sans-serif;color:var(--ink);background:#f4efe6}
+  #app{max-width:480px;margin:0 auto;min-height:100vh;position:relative;background:#f4efe6;overflow:hidden}
+  img{display:block}
+  .hidden{display:none!important}
+  button{font-family:inherit;cursor:pointer;border:none}
+
+  /* AWNING HEADER */
+  .awning{position:relative;height:70px;background:
+    repeating-linear-gradient(90deg,var(--orange) 0 34px,#fff 34px 68px);}
+  .awning::after{content:"";position:absolute;bottom:-18px;left:0;right:0;height:22px;
+    background:repeating-linear-gradient(90deg,var(--orange) 0 34px,#fff 34px 68px);
+    -webkit-mask:radial-gradient(circle 17px at 17px 0,transparent 16px,#000 17px) repeat-x;
+    -webkit-mask-size:34px 22px;mask:radial-gradient(circle 17px at 17px 0,transparent 16px,#000 17px) repeat-x;mask-size:34px 22px;}
+  .starbar{position:absolute;top:6px;left:50%;transform:translateX(-50%);background:var(--red);
+    color:var(--orange);border-radius:10px;padding:6px 16px;font-size:13px;letter-spacing:2px;
+    box-shadow:0 4px 0 var(--red-d);z-index:3;white-space:nowrap}
+
+  /* AUTH */
+  .auth-wrap{min-height:100vh;background:linear-gradient(180deg,#8fd3f4,#a7e9af);display:flex;flex-direction:column;align-items:center;padding:26px 20px 40px}
+  .auth-logo{width:150px;height:auto;filter:drop-shadow(0 6px 10px rgba(0,0,0,.25));margin-top:8px}
+  .auth-card{background:#fff;border-radius:22px;padding:24px 20px;width:100%;max-width:400px;margin-top:22px;box-shadow:0 14px 34px rgba(0,0,0,.15)}
+  .auth-card h2{text-align:center;color:var(--green-d);margin-bottom:4px;font-size:22px}
+  .auth-card p.sub{text-align:center;color:var(--muted);font-size:13px;margin-bottom:18px}
+  label{display:block;font-size:13px;font-weight:600;margin:12px 2px 6px}
+  .field{display:flex;gap:8px}
+  .prefix{background:#f0f0f0;border-radius:12px;display:flex;align-items:center;padding:0 12px;font-weight:700;color:#555}
+  select,input{width:100%;padding:14px;border:1.5px solid #e5e5e5;border-radius:12px;font-size:15px;outline:none;background:#fafafa}
+  select:focus,input:focus{border-color:var(--green)}
+  select.op{width:auto;min-width:90px;font-weight:700}
+  .btn{width:100%;padding:15px;border-radius:14px;font-size:16px;font-weight:700;color:#fff;background:var(--green);box-shadow:0 5px 0 var(--green-d);margin-top:20px;transition:.1s}
+  .btn:active{transform:translateY(3px);box-shadow:0 2px 0 var(--green-d)}
+  .btn.orange{background:var(--orange);box-shadow:0 5px 0 var(--orange-d)}
+  .switch{text-align:center;margin-top:16px;font-size:14px;color:#555}
+  .switch b{color:var(--green-d);cursor:pointer}
+  .hint{font-size:11.5px;color:var(--muted);margin-top:5px}
+
+  /* MAIN */
+  .topbar{display:flex;align-items:center;gap:10px;padding:12px 14px;background:linear-gradient(90deg,var(--wood),#c8925a);color:#fff;
+    border-bottom:4px solid #7a5327}
+  .avatar{width:46px;height:46px;border-radius:12px;background:#fff2d9;display:flex;align-items:center;justify-content:center;font-size:24px;border:2px solid #fff}
+  .tb-info{flex:1}
+  .tb-info .lvl{font-size:12px;opacity:.9}
+  .tb-info .coins{font-size:20px;font-weight:800;display:flex;align-items:center;gap:6px}
+  .tb-logo{width:52px;height:auto}
+
+  .screen{padding:16px 14px 96px;min-height:calc(100vh - 66px)}
+  .farm{background:url('/farm-bg.jpg') center/cover;border-radius:0;min-height:calc(100vh - 66px);padding:16px 14px 110px;position:relative}
+  .quick{display:flex;justify-content:space-between;margin-bottom:14px}
+  .quick .q{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:12px;font-weight:600;color:#3a3a3a;background:rgba(255,255,255,.75);padding:8px;border-radius:14px;width:72px}
+  .quick .q .ic{font-size:26px}
+
+  .plots{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:6px}
+  .plot{background:rgba(255,255,255,.9);border-radius:16px;padding:10px 8px;text-align:center;box-shadow:0 4px 10px rgba(0,0,0,.12);position:relative}
+  .plot .emoji{font-size:40px;line-height:1}
+  .plot .nm{font-size:12px;font-weight:700;margin-top:2px}
+  .plot .timer{font-size:11px;color:var(--red-d);font-weight:700;margin:3px 0}
+  .plot .acts{display:flex;gap:5px;margin-top:5px}
+  .plot .acts button{flex:1;font-size:11px;font-weight:700;color:#fff;border-radius:8px;padding:6px 0}
+  .a-water{background:#3aa0ff}
+  .a-harvest{background:var(--orange)}
+  .empty-plot{background:rgba(255,255,255,.55);border-radius:16px;min-height:110px;display:flex;align-items:center;justify-content:center;color:#666;font-size:12px;border:2px dashed rgba(0,0,0,.15)}
+
+  .sectiontitle{font-size:22px;font-weight:800;color:var(--orange-d);margin:4px 2px 14px}
+  .card{background:var(--card);border-radius:16px;padding:14px;margin-bottom:12px;box-shadow:0 4px 12px rgba(0,0,0,.06)}
+  .shop-item{display:flex;gap:12px;align-items:center}
+  .shop-item .emoji{font-size:52px;width:64px;text-align:center}
+  .shop-item .info{flex:1;font-size:13px}
+  .shop-item .info .t{font-size:16px;font-weight:800;margin-bottom:4px}
+  .shop-item .row{color:#555;margin:2px 0}
+  .shop-item .row b{color:var(--green-d)}
+  .buybtn{background:var(--orange);color:#fff;font-weight:800;padding:10px 18px;border-radius:12px;box-shadow:0 4px 0 var(--orange-d);align-self:center}
+  .buybtn:active{transform:translateY(2px);box-shadow:0 2px 0 var(--orange-d)}
+
+  .infobox{background:#fff7e6;border:1px solid #ffe0a3;border-radius:12px;padding:12px;font-size:13px;line-height:1.6;margin-bottom:14px}
+  .infobox b{color:var(--red-d)}
+  .tag{display:inline-block;background:#e7f9f2;color:var(--green-d);font-weight:800;padding:3px 10px;border-radius:8px}
+  .tglink{display:flex;align-items:center;gap:10px;background:#e8f4ff;border-radius:12px;padding:12px;margin-bottom:10px;text-decoration:none;color:#0b6bcb;font-weight:700}
+  .tglink .ic{font-size:24px}
+
+  .stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+  .stat{background:linear-gradient(135deg,#12b886,#0ca678);color:#fff;border-radius:14px;padding:14px;text-align:center}
+  .stat .v{font-size:22px;font-weight:800}
+  .stat .l{font-size:12px;opacity:.9}
+  .reflink{display:flex;gap:8px;margin:12px 0}
+  .reflink input{background:#f5f5f5}
+  .copybtn{background:var(--green);color:#fff;font-weight:700;padding:0 18px;border-radius:12px;white-space:nowrap;box-shadow:0 4px 0 var(--green-d)}
+
+  .tx{display:flex;justify-content:space-between;padding:12px 4px;border-bottom:1px solid var(--line);font-size:14px}
+  .tx .d{font-size:11px;color:var(--muted)}
+  .tx .amt{font-weight:800}
+  .pos{color:var(--green-d)} .neg{color:var(--red)}
+  .badge{font-size:11px;padding:2px 8px;border-radius:8px}
+  .b-pending{background:#fff3cd;color:#8a6d00}
+  .b-completed{background:#d4edda;color:#1c7c34}
+  .b-rejected{background:#f8d7da;color:#a52834}
+
+  .backbtn{background:none;color:var(--orange-d);font-weight:700;font-size:14px;margin-bottom:8px}
+
+  /* BOTTOM NAV */
+  .nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;display:flex;background:linear-gradient(180deg,#c8925a,var(--wood));border-top:4px solid #7a5327;z-index:40}
+  .nav button{flex:1;color:#fff;background:none;padding:9px 2px 10px;font-size:11px;font-weight:600;display:flex;flex-direction:column;align-items:center;gap:3px;opacity:.85}
+  .nav button.active{opacity:1;color:#ffe9b0}
+  .nav .ic{font-size:20px}
+
+  /* TOAST + MODAL */
+  #toast{position:fixed;top:24px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:12px 22px;border-radius:30px;font-size:14px;z-index:200;opacity:0;transition:.25s;pointer-events:none;max-width:90%;text-align:center}
+  #toast.show{opacity:1;top:34px}
+  .modal{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:150;padding:24px}
+  .modal .box{background:#fff;border-radius:20px;padding:22px;width:100%;max-width:360px}
+  .modal h3{margin-bottom:14px;color:var(--green-d)}
+  .modal .x{float:right;font-size:22px;color:#999;cursor:pointer}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ===== AUTH ===== -->
+  <div id="authScreen" class="auth-wrap">
+    <img class="auth-logo" src="/logo.png" alt="Del Monte" />
+    <div class="auth-card">
+      <!-- LOGIN -->
+      <div id="loginForm">
+        <h2>Xoş gəldiniz</h2>
+        <p class="sub">Del Monte Ferma hesabınıza daxil olun</p>
+        <label>Telefon nömrəsi</label>
+        <div class="field">
+          <span class="prefix">+994</span>
+          <select id="lgOp" class="op">
+            <option>50</option><option>51</option><option>55</option><option>70</option>
+            <option>77</option><option>99</option><option>10</option><option>12</option>
+            <option>40</option><option>44</option><option>60</option>
+          </select>
+          <input id="lgNum" inputmode="numeric" maxlength="7" placeholder="5555555" />
+        </div>
+        <label>Şifrə</label>
+        <input id="lgPass" type="password" placeholder="Şifrənizi daxil edin" />
+        <button class="btn" onclick="login()">Daxil ol</button>
+        <div class="switch">Hesabınız yoxdur? <b onclick="showAuth('reg')">Qeydiyyat</b></div>
+      </div>
+      <!-- REGISTER -->
+      <div id="regForm" class="hidden">
+        <h2>Qeydiyyat</h2>
+        <p class="sub">🎁 Qeydiyyatdan keçən hər kəsə 1 AZN bonus!</p>
+        <label>Telefon nömrəsi</label>
+        <div class="field">
+          <span class="prefix">+994</span>
+          <select id="rgOp" class="op">
+            <option>50</option><option>51</option><option>55</option><option>70</option>
+            <option>77</option><option>99</option><option>10</option><option>12</option>
+            <option>40</option><option>44</option><option>60</option>
+          </select>
+          <input id="rgNum" inputmode="numeric" maxlength="7" placeholder="5555555" />
+        </div>
+        <div class="hint">Nümunə: +994 55 5555555 (operator + 7 rəqəm)</div>
+        <label>Şifrə</label>
+        <input id="rgPass" type="password" placeholder="6-20 simvol" />
+        <label>Referal kodu (istəyə görə)</label>
+        <input id="rgRef" placeholder="Dəvət kodu" />
+        <button class="btn orange" onclick="register()">Qeydiyyatdan keç</button>
+        <div class="switch">Hesabınız var? <b onclick="showAuth('login')">Daxil ol</b></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== MAIN ===== -->
+  <div id="mainScreen" class="hidden">
+    <div class="topbar">
+      <div class="avatar">🧑‍🌾</div>
+      <div class="tb-info">
+        <div class="lvl">Lv. <span id="uLevel">1</span></div>
+        <div class="coins">🪙 <span id="uBalance">0.00</span></div>
+      </div>
+      <img class="tb-logo" src="/logo.png" alt="Del Monte" />
+    </div>
+
+    <!-- HOME / FARM -->
+    <div id="tab-home">
+      <div class="farm">
+        <div class="quick">
+          <div class="q" onclick="go('treasure')"><span class="ic">🎁</span>Kodu geri alın</div>
+          <div class="q" onclick="go('deposit')"><span class="ic">💰</span>Depozit</div>
+          <div class="q" onclick="go('invite')"><span class="ic">👥</span>Dəvət et</div>
+          <div class="q" onclick="loadProfile(true)"><span class="ic">🔄</span>Yenilə</div>
+        </div>
+        <div id="myPlots" class="plots"></div>
+      </div>
+    </div>
+
+    <!-- SEED MALL -->
+    <div id="tab-shop" class="screen hidden">
+      <div class="starbar">★ ★ ★ ★ ★ ★ ★ ★ ★ ★</div>
+      <div class="sectiontitle" style="margin-top:36px">Seed Mall</div>
+      <div id="shopList"></div>
+    </div>
+
+    <!-- DEPOSIT -->
+    <div id="tab-deposit" class="screen hidden">
+      <div class="sectiontitle">Depozit</div>
+      <div class="infobox">
+        ⏰ Depozit saatları: <b>10:00 - 20:00</b><br>
+        💵 Minimum depozit: <b>10 AZN</b><br>
+        📲 Depozit üçün: <span class="tag">@Delmontedepozit</span>
+      </div>
+      <a class="tglink" href="https://t.me/Delmontedepozit" target="_blank"><span class="ic">📨</span> Depozit üçün Telegram-a yaz (@Delmontedepozit)</a>
+      <div class="card">
+        <label>Depozit məbləği (AZN)</label>
+        <input id="depAmount" inputmode="decimal" placeholder="Minimum 10 AZN" />
+        <button class="btn" onclick="submitDeposit()">Depozit sorğusu göndər</button>
+      </div>
+    </div>
+
+    <!-- WITHDRAW -->
+    <div id="tab-withdraw" class="screen hidden">
+      <div class="sectiontitle">Çıxarış</div>
+      <div class="infobox">
+        ⏰ Çıxarış saatları: <b>10:00 - 20:00</b><br>
+        💵 Minimum: <b>6 AZN</b> &nbsp; Maksimum: <b>2000 AZN</b><br>
+        📉 Komissiya: <b>10%</b>
+      </div>
+      <div class="card">
+        <label>Bank adı</label>
+        <input id="wBank" placeholder="Zəhmət olmasa bank adını daxil edin" />
+        <label>Ad Soyad</label>
+        <input id="wHolder" placeholder="Zəhmət olmasa adınızı yazın" />
+        <label>Bank kartı nömrəsi</label>
+        <input id="wCard" inputmode="numeric" placeholder="Kart nömrəsini daxil edin" />
+        <label>Çıxarış məbləği (AZN)</label>
+        <input id="wAmount" inputmode="decimal" placeholder="Minimum 6 AZN" />
+        <button class="btn" onclick="submitWithdraw()">Çıxarış sorğusu</button>
+      </div>
+    </div>
+
+    <!-- INVITE / REFERRAL -->
+    <div id="tab-invite" class="screen hidden">
+      <div class="sectiontitle">Dəvət et</div>
+      <div class="infobox">🤝 Dostunu dəvət et! Dəvət etdiyin şəxs depozit etdikdə sənə <b>10% cashback</b> gəlir.</div>
+      <div class="stat-grid">
+        <div class="stat"><div class="v" id="refCount">0</div><div class="l">Dəvət olunan</div></div>
+        <div class="stat"><div class="v" id="refCash">0.00</div><div class="l">Qazanılan cashback</div></div>
+      </div>
+      <div class="card">
+        <label>Dəvət kodun</label>
+        <div class="reflink">
+          <input id="myRefCode" readonly />
+          <button class="copybtn" onclick="copyVal('myRefCode')">Kopyala</button>
+        </div>
+        <label>Dəvət linkin</label>
+        <div class="reflink">
+          <input id="myRefLink" readonly />
+          <button class="copybtn" onclick="copyVal('myRefLink')">Kopyala</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TREASURE CODE -->
+    <div id="tab-treasure" class="screen hidden">
+      <div class="sectiontitle">🎁 Xəzinə kodu</div>
+      <div class="infobox">Xəzinə kodunu daxil edərək hesabına bonus qazan!</div>
+      <div class="card">
+        <label>Kodu daxil et</label>
+        <input id="treCode" placeholder="Xəzinə kodu" />
+        <button class="btn orange" onclick="redeemCode()">Kodu geri al</button>
+      </div>
+    </div>
+
+    <!-- ME / PROFILE -->
+    <div id="tab-me" class="screen hidden">
+      <div class="sectiontitle">Mənim</div>
+      <div class="stat-grid">
+        <div class="stat"><div class="v" id="mBalance">0.00</div><div class="l">Balans (AZN)</div></div>
+        <div class="stat"><div class="v" id="mIncome">0.00</div><div class="l">Ümumi gəlir</div></div>
+        <div class="stat"><div class="v" id="mDeposit">0.00</div><div class="l">Ümumi depozit</div></div>
+        <div class="stat"><div class="v" id="mWithdraw">0.00</div><div class="l">Ümumi çıxarış</div></div>
+      </div>
+      <div class="card" style="display:flex;gap:10px">
+        <button class="btn" style="margin-top:0" onclick="go('deposit')">💰 Depozit</button>
+        <button class="btn orange" style="margin-top:0" onclick="go('withdraw')">🏧 Çıxarış</button>
+      </div>
+      <div class="sectiontitle" style="font-size:18px">Müştəri xidməti</div>
+      <a class="tglink" href="https://t.me/delmonte01" target="_blank"><span class="ic">🎧</span> Müştəri xidməti: @delmonte01</a>
+      <a class="tglink" href="https://t.me/+SYVQ4JwgJ3M3ZGMx" target="_blank"><span class="ic">📢</span> Del Monte kanal</a>
+      <a class="tglink" href="https://t.me/+IvvXXzzOJIo2MDAx" target="_blank"><span class="ic">💬</span> Söhbət qrupu</a>
+      <div class="sectiontitle" style="font-size:18px">Əməliyyat tarixçəsi</div>
+      <div class="card" id="txList"><p style="color:#999;text-align:center">Yüklənir...</p></div>
+      <button class="btn" style="background:#c62828;box-shadow:0 5px 0 #8e1b1b" onclick="logout()">Çıxış et</button>
+    </div>
+
+    <!-- BOTTOM NAV -->
+    <div class="nav">
+      <button data-tab="home" class="active" onclick="go('home')"><span class="ic">🏡</span>ön səhifə</button>
+      <button data-tab="shop" onclick="go('shop')"><span class="ic">🌱</span>Seed Mall</button>
+      <button data-tab="home2" onclick="go('home')"><span class="ic">🌾</span>ferma</button>
+      <button data-tab="withdraw" onclick="go('withdraw')"><span class="ic">💵</span>satmaq</button>
+      <button data-tab="me" onclick="go('me')"><span class="ic">👤</span>mənim</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+const API = '';
+const TREES = {
+  1:{name:'Nar ağacı',emoji:'🍎',price:10,daily:0.8,days:30},
+  2:{name:'Armud ağacı',emoji:'🍐',price:25,daily:1.8,days:30},
+  3:{name:'Mpopla ağacı',emoji:'🫐',price:100,daily:5.5,days:30},
+  4:{name:'Banan ağacı',emoji:'🍌',price:250,daily:12.5,days:30},
+  5:{name:'Ananas ağacı',emoji:'🍍',price:540,daily:28,days:30},
+  6:{name:'Manqo ağacı',emoji:'🥭',price:1000,daily:50,days:30},
+};
+let token = localStorage.getItem('token');
+let profile = null;
+
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2600);}
+function showAuth(w){document.getElementById('loginForm').classList.toggle('hidden',w!=='login');document.getElementById('regForm').classList.toggle('hidden',w!=='reg');}
+
+async function api(path,method='GET',body){
+  const h={'Content-Type':'application/json'};
+  if(token)h.Authorization='Bearer '+token;
+  const r=await fetch(API+path,{method,headers:h,body:body?JSON.stringify(body):undefined});
+  const d=await r.json();
+  if(!r.ok)throw new Error(d.error||'Xəta baş verdi');
+  return d;
+}
+
+/* AUTH */
+async function register(){
+  const op=document.getElementById('rgOp').value;
+  const num=document.getElementById('rgNum').value.trim();
+  const pass=document.getElementById('rgPass').value;
+  const ref=document.getElementById('rgRef').value.trim();
+  if(!/^\d{7}$/.test(num))return toast('Nömrə 7 rəqəm olmalıdır');
+  if(pass.length<6||pass.length>20)return toast('Şifrə 6-20 simvol olmalıdır');
+  const phone='994'+op+num;
+  try{
+    const d=await api('/api/auth/register','POST',{phone,password:pass,refCode:ref});
+    token=d.token;localStorage.setItem('token',token);
+    toast(d.message||'Qeydiyyat uğurlu!');enterApp();
+  }catch(e){toast(e.message);}
+}
+async function login(){
+  const op=document.getElementById('lgOp').value;
+  const num=document.getElementById('lgNum').value.trim();
+  const pass=document.getElementById('lgPass').value;
+  if(!/^\d{7}$/.test(num))return toast('Nömrə 7 rəqəm olmalıdır');
+  const phone='994'+op+num;
+  try{
+    const d=await api('/api/auth/login','POST',{phone,password:pass});
+    token=d.token;localStorage.setItem('token',token);enterApp();
+  }catch(e){toast(e.message);}
+}
+function logout(){localStorage.removeItem('token');token=null;location.reload();}
+
+function enterApp(){
+  document.getElementById('authScreen').classList.add('hidden');
+  document.getElementById('mainScreen').classList.remove('hidden');
+  loadProfile();renderShop();go('home');
+}
+
+/* NAV */
+function go(tab){
+  ['home','shop','deposit','withdraw','invite','treasure','me'].forEach(t=>{
+    const el=document.getElementById('tab-'+t);if(el)el.classList.toggle('hidden',t!==tab);
+  });
+  document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));
+  const map={home:'home',shop:'shop',withdraw:'withdraw',me:'me'};
+  const active=map[tab];
+  if(active){const b=document.querySelector('.nav button[data-tab="'+active+'"]');if(b)b.classList.add('active');}
+  if(tab==='invite')loadReferral();
+  if(tab==='me'){loadProfile();loadTx();}
+  if(tab==='home')loadProfile();
+  window.scrollTo(0,0);
+}
+
+/* PROFILE */
+async function loadProfile(notify){
+  try{
+    const d=await api('/api/user/profile');
+    profile=d;
+    document.getElementById('uBalance').textContent=(+d.user.balance).toFixed(2);
+    document.getElementById('uLevel').textContent=d.user.level;
+    document.getElementById('mBalance').textContent=(+d.user.balance).toFixed(2);
+    document.getElementById('mIncome').textContent=(+d.user.total_income).toFixed(2);
+    document.getElementById('mDeposit').textContent=(+d.user.total_deposit).toFixed(2);
+    document.getElementById('mWithdraw').textContent=(+d.user.total_withdraw).toFixed(2);
+    renderPlots(d.trees);
+    if(notify)toast('Yeniləndi');
+  }catch(e){if(e.message.includes('token')||e.message.includes('Token'))logout();}
+}
+
+function daysLeft(t){
+  const end=new Date(t.planted_at).getTime()+TREES[t.tree_type].days*86400000;
+  const ms=end-Date.now();
+  if(ms<=0)return 'Bitdi';
+  const d=Math.floor(ms/86400000),h=Math.floor(ms%86400000/3600000),m=Math.floor(ms%3600000/60000);
+  return d+'g '+h+'s '+m+'d';
+}
+function wateredToday(t){return t.last_watered && new Date(t.last_watered).toDateString()===new Date().toDateString();}
+function harvestedToday(t){return t.last_harvest && (Date.now()-new Date(t.last_harvest).getTime())<86400000;}
+
+function renderPlots(trees){
+  const box=document.getElementById('myPlots');
+  let html='';
+  trees.forEach(t=>{
+    const info=TREES[t.tree_type];
+    html+=`<div class="plot">
+      <div class="emoji">${info.emoji}</div>
+      <div class="nm">${info.name}</div>
+      <div class="timer">⏳ ${daysLeft(t)}</div>
+      <div class="acts">
+        <button class="a-water" ${wateredToday(t)?'disabled style=opacity:.5':''} onclick="water(${t.id})">💧 Su</button>
+        <button class="a-harvest" ${harvestedToday(t)?'disabled style=opacity:.5':''} onclick="harvest(${t.id})">🪙 Yığ</button>
+      </div>
+    </div>`;
+  });
+  const empties=Math.max(0,9-trees.length);
+  for(let i=0;i<empties;i++)html+=`<div class="empty-plot" onclick="go('shop')">＋ Ağac ək</div>`;
+  box.innerHTML=html;
+}
+
+async function water(id){try{const d=await api('/api/trees/water/'+id,'POST');toast(d.message);loadProfile();}catch(e){toast(e.message);}}
+async function harvest(id){try{const d=await api('/api/trees/harvest/'+id,'POST');toast(d.message);loadProfile();}catch(e){toast(e.message);}}
+
+/* SHOP */
+function renderShop(){
+  let html='';
+  Object.entries(TREES).forEach(([id,t])=>{
+    html+=`<div class="card"><div class="shop-item">
+      <div class="emoji">${t.emoji}</div>
+      <div class="info">
+        <div class="t">${t.name}</div>
+        <div class="row">Qiymət: <b>${t.price} AZN</b></div>
+        <div class="row">Gündəlik gəlir: <b>${t.daily} AZN</b></div>
+        <div class="row">Müddət: <b>${t.days} gün</b></div>
+      </div>
+      <button class="buybtn" onclick="buy(${id})">al</button>
+    </div></div>`;
+  });
+  document.getElementById('shopList').innerHTML=html;
+}
+async function buy(id){
+  const t=TREES[id];
+  if(!confirm(t.name+' ('+t.price+' AZN) almaq istəyirsiniz?'))return;
+  try{const d=await api('/api/trees/buy','POST',{treeType:+id});toast(d.message);loadProfile();go('home');}catch(e){toast(e.message);}
+}
+
+/* DEPOSIT */
+async function submitDeposit(){
+  const amount=parseFloat(document.getElementById('depAmount').value);
+  if(!amount||amount<10)return toast('Minimum depozit 10 AZN');
+  try{const d=await api('/api/deposit','POST',{amount,method:'Telegram @Delmontedepozit'});
+    toast(d.message+' → @Delmontedepozit');document.getElementById('depAmount').value='';
+  }catch(e){toast(e.message);}
+}
+
+/* WITHDRAW */
+async function submitWithdraw(){
+  const amount=parseFloat(document.getElementById('wAmount').value);
+  const bankName=document.getElementById('wBank').value.trim();
+  const cardHolder=document.getElementById('wHolder').value.trim();
+  const cardNumber=document.getElementById('wCard').value.trim();
+  if(!bankName||!cardHolder||!cardNumber)return toast('Bütün sahələri doldurun');
+  if(!amount||amount<6)return toast('Minimum çıxarış 6 AZN');
+  if(amount>2000)return toast('Maksimum çıxarış 2000 AZN');
+  try{const d=await api('/api/withdraw','POST',{amount,bankName,cardHolder,cardNumber});
+    toast('Sorğu göndərildi! Net: '+d.netAmount+' AZN (Kom: '+d.fee+' AZN)');
+    ['wAmount','wBank','wHolder','wCard'].forEach(i=>document.getElementById(i).value='');
+    loadProfile();
+  }catch(e){toast(e.message);}
+}
+
+/* REFERRAL */
+async function loadReferral(){
+  try{const d=await api('/api/referral/stats');
+    document.getElementById('refCount').textContent=d.referralCount;
+    document.getElementById('refCash').textContent=(+d.totalCashback).toFixed(2);
+    document.getElementById('myRefCode').value=d.refCode;
+    document.getElementById('myRefLink').value=location.origin+'/?ref='+d.refCode;
+  }catch(e){toast(e.message);}
+}
+function copyVal(id){const el=document.getElementById(id);el.select();navigator.clipboard.writeText(el.value).then(()=>toast('Kopyalandı!'));}
+
+/* TREASURE */
+async function redeemCode(){
+  const code=document.getElementById('treCode').value.trim();
+  if(!code)return toast('Kod daxil edin');
+  try{const d=await api('/api/treasure/redeem','POST',{code});toast(d.message);document.getElementById('treCode').value='';loadProfile();}catch(e){toast(e.message);}
+}
+
+/* TX HISTORY */
+const TXNAMES={deposit:'Depozit',withdraw:'Çıxarış',income:'Gündəlik gəlir',buy_tree:'Ağac alışı',referral_cashback:'Referal cashback',treasure:'Xəzinə kodu'};
+async function loadTx(){
+  try{const d=await api('/api/transactions');
+    if(!d.transactions.length){document.getElementById('txList').innerHTML='<p style="color:#999;text-align:center">Əməliyyat yoxdur</p>';return;}
+    const neg=['withdraw','buy_tree'];
+    document.getElementById('txList').innerHTML=d.transactions.map(t=>{
+      const isNeg=neg.includes(t.type);
+      return `<div class="tx"><div><div>${TXNAMES[t.type]||t.type}</div><div class="d">${new Date(t.created_at).toLocaleString('az')}</div></div>
+      <div style="text-align:right"><div class="amt ${isNeg?'neg':'pos'}">${isNeg?'-':'+'}${(+t.amount).toFixed(2)}</div>
+      <span class="badge b-${t.status}">${t.status==='pending'?'gözləyir':t.status==='completed'?'tamam':'ləğv'}</span></div></div>`;
+    }).join('');
+  }catch(e){}
+}
+
+/* INIT */
+const urlRef=new URLSearchParams(location.search).get('ref');
+if(urlRef){showAuth('reg');setTimeout(()=>{const el=document.getElementById('rgRef');if(el)el.value=urlRef;},100);}
+if(token){enterApp();}
+setInterval(()=>{if(profile)renderPlots(profile.trees);},60000);
+</script>
+</body>
+</html>
